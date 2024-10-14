@@ -18,8 +18,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
-	"github.com/soundtrackyourbrand/scrypt"
 )
 
 func Strval(value interface{}) string {
@@ -1072,21 +1070,6 @@ func Now2MD5() string {
 
 func NowSeedMD5(seed string) string {
 	return StrMD5(seed + strconv.FormatInt(time.Now().UnixNano(), 10))
-}
-
-// github.com/soundtrackyourbrand/scrypt  salt:id+totalASCII(email)+date_created(millisecond)
-func EncryptPassword(password, salt string) string {
-	k, _ := scrypt.Key([]byte(password), []byte(salt), 16384, 8, 1, 32)
-	md5Ctx := md5.New()
-	md5Ctx.Write(k)
-	return hex.EncodeToString(md5Ctx.Sum(nil))
-}
-
-func EncryptLicence(appkey, expirydate string) string {
-	k, _ := scrypt.Key([]byte(appkey), []byte(expirydate), 16384, 8, 1, 32)
-	md5Ctx := md5.New()
-	md5Ctx.Write(k)
-	return hex.EncodeToString(md5Ctx.Sum(nil))
 }
 
 func ShowPrice(currency_code string, cny_price int) string {
