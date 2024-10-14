@@ -308,18 +308,17 @@ func NewCookieStore(software string) (cs *sessions.CookieStore) {
 	return
 }
 
+func CreateSubdirs(dirs string) {
+	ss := strings.Split(dirs, ",")
+	for _, name := range ss {
+		SetRunSubdir(name)
+	}
+}
 func SetParam(sw_title string) {
 	preferredMAC = RecordMAC()
 	software_title = sw_title
 	dirLog = filepath.Join(dirRun, "logs")
-	SetRunSubdir("logs")
-	SetRunSubdir("configure")
-	SetRunSubdir("data") //sqlite db file path.
-	SetRunSubdir("download")
-	SetRunSubdir("illustration")
-	SetRunSubdir("temp")
-	SetRunSubdir("uploads")
-	SetRunSubdir("wx")
+	CreateSubdirs("logs,configure,data,download,illustration,temp,uploads,wx")
 	filename := filepath.Join(dirRes, "res", "stsong.ttf")
 	if IsExists(filename) {
 		//SongParser.Parse(filename)
@@ -327,7 +326,7 @@ func SetParam(sw_title string) {
 		fmt.Println("file not exist:", filename)
 	}
 	loadAdministratorAuthority()
-	e := Meta_data.Reset()
+	e := Meta_data.Loadfromfile()
 	if e != nil {
 		fmt.Println("metadata reset error:", e.Error())
 	} else {

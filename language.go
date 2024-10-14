@@ -40,10 +40,23 @@ func InitSysLang() {
 		}
 		fi.Close()
 	}
+
 	sys_accept_language, _ = ReadLanguageConfigurationFromFile()
-	if strings.Count(sys_accept_language, ",") > 0 {
-		sys_acceptmultiplelanguage = true
+	fname = filepath.Join(dirRes, "res", "multilanguage")
+	if IsExists(fname) {
+		b, e := ioutil.ReadFile(fname)
+		if e == nil {
+			sys_acceptmultiplelanguage = (TrimBLANK(string(b)) == "1")
+		}
+	} else {
+		if strings.Count(sys_accept_language, ",") > 0 {
+			sys_acceptmultiplelanguage = true
+		}
 	}
+}
+
+func SetSysAcceptMultipleLanguage(multilanguage bool) {
+	sys_acceptmultiplelanguage = multilanguage
 }
 
 func SysAcceptMultipleLanguage() (flag bool) {

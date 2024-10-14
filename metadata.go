@@ -23,7 +23,7 @@ type Metadata struct {
 	mapInfo   map[string]metainfoT
 }
 
-func (md *Metadata) Reset() (e error) {
+func (md *Metadata) Loadfromfile() (e error) {
 	if len(md.Filenames) > 0 {
 		md.Filenames = make([]string, 0)
 	}
@@ -160,7 +160,7 @@ func (md *Metadata) Write2DB() (err error) {
 }
 
 func (md *Metadata) UpgradedMetas() (metas []string, err error) {
-	md.Reset()
+	md.Loadfromfile()
 	tablename := "metadata"
 	if TableExists(tablename) {
 		isempty := true
