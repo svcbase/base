@@ -467,6 +467,17 @@ func TrimBOM(ss string) string {
 	return strings.Replace(ss, string(BOM), "", -1)
 }
 
+func TrimPAD(code, pad_formats string) (tcode string) {
+	tcode = code
+	if len(pad_formats) > 0 {
+		ff := strings.Split(pad_formats, ",")
+		for _, f := range ff {
+			tcode = strings.TrimSuffix(tcode, f)
+		}
+	}
+	return
+}
+
 func TrimSquareBrackets(ss string) string {
 	b := []byte(ss)
 	n := len(b)
