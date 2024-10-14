@@ -326,13 +326,17 @@ func SetParam(sw_title string) {
 		fmt.Println("file not exist:", filename)
 	}
 	loadAdministratorAuthority()
+	LoadMetadata()
+	Salesequence.Open(dirRun, "sale")
+}
+
+func LoadMetadata() {
 	e := Meta_data.Loadfromfile()
 	if e != nil {
 		fmt.Println("metadata reset error:", e.Error())
 	} else {
 		fmt.Println(EchoTxt("t_metasuccess"))
 	}
-	Salesequence.Open(dirRun, "sale")
 }
 
 func GetCookieStore() (cs *sessions.CookieStore) {
