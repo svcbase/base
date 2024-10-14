@@ -40,7 +40,7 @@ func InitSysLang() {
 		}
 		fi.Close()
 	}
-	sys_accept_language = ReadLanguageConfigurationFromFile()
+	sys_accept_language, _ = ReadLanguageConfigurationFromFile()
 	if strings.Count(sys_accept_language, ",") > 0 {
 		sys_acceptmultiplelanguage = true
 	}
@@ -249,7 +249,7 @@ func AcceptLanguageCodes() (codes []string) {
 			}
 		}
 	} else {
-		al = ReadLanguageConfigurationFromFile()
+		al, _ = ReadLanguageConfigurationFromFile()
 		if len(al) > 0 {
 			accept_languages := strings.Split(al, ",")
 			n := len(accept_languages)
@@ -344,18 +344,49 @@ func WriteLanguageConfigurationFile(accept_language string) (err error) {
 	return
 }
 
-func ReadLanguageConfigurationFromFile() (accept_language string) {
+func ReadLanguageConfigurationFromFile() (accept_languages, language_tags string) {
 	filename := filepath.Join(dirRun, "configure", "language")
 	if IsExists(filename) {
 		b, err := ioutil.ReadFile(filename)
 		if err == nil {
-			accept_language = string(b)
+			accept_languages = string(b)
 		}
 	} /* else {
 		errorLog.Println("file not exists:", filename)
 	}*/
-	if len(accept_language) == 0 {
-		accept_language = "2"
+	if len(accept_languages) == 0 {
+		accept_languages = "2"
+	}
+	tags := []string{}
+	idid := strings.Split(accept_languages, ",")
+	for i, n := 0, len(idid); i < n; i++ {
+		tags = append(tags, Language_tag(idid[i]))
+	}
+	language_tags = strings.Join(tags, ",")
+	return
+}
+func WriteBaselanguageConfigurationFile(base_language string) (err error) {
+	filename := filepath.Join(dirRun, "configure", "baselanguage")
+	if IsExists(filename) {
+		os.Remove(filename)
+	}
+	e := ioutil.WriteFile(filename, []byte(base_language), 0644)
+	if e != nil {
+		err = errors.New("write baselanguage configuration file: " + e.Error())
+	}
+	return
+}
+
+func ReadBaselanguageConfigurationFromFile() (base_language string) {
+	filename := filepath.Join(dirRun, "configure", "baselanguage")
+	if IsExists(filename) {
+		b, err := ioutil.ReadFile(filename)
+		if err == nil {
+			base_language = string(b)
+		}
+	}
+	if len(base_language) == 0 {
+		base_language = "2"
 	}
 	return
 }

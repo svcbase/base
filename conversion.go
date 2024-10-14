@@ -274,6 +274,14 @@ func ReplaceTAB(ss string) string {
 	return strings.ReplaceAll(ss, string(TAB), "")
 }
 
+const aOnlyTable = "\u0000\u0001\u0002\u0003\u0004" + // NUL, SOH, STX, ETX, EOT
+	"\u0005\u0006\u0007\u0008\u0009" + // ENQ, ACK, BEL, BS,  HT
+	"\u000A\u000B\u000C\u000D\u000E" + // LF,  VT,  FF,  CR,  SO
+	"\u000F\u0010\u0011\u0012\u0013" + // SI,  DLE, DC1, DC2, DC3
+	"\u0014\u0015\u0016\u0017\u0018" + // DC4, NAK, SYN, ETB, CAN
+	"\u0019\u001A\u001B\u001C\u001D" + // EM,  SUB, ESC, FS,  GS
+	"\u001E\u001F" // RS,  US
+
 var U0002 rune = '\u0002'
 
 func ContainsU0002(ss string) (flag bool) {
@@ -543,13 +551,13 @@ func TrimParticularSpace(ss string) (rr string) {
 			}
 		}
 	}
-	for _, s := range ParticularSpaceRUNE {
+	/*for _, s := range ParticularSpaceRUNE {
 		tt := runeEscape(s)
 		rr = strings.ReplaceAll(rr, tt, "")
 	}
 	rr = strings.ReplaceAll(rr, "\\f", "")
 	rr = strings.ReplaceAll(rr, "\\a", "")
-	rr = strings.ReplaceAll(rr, "\\e", "")
+	rr = strings.ReplaceAll(rr, "\\e", "")*/
 	return
 }
 

@@ -973,7 +973,8 @@ func CountryPreferred(countrycode string) (country_id, preferredlanguage_id, pre
 func Servicepreparation() {
 	if db != nil {
 		base_language, base_language_code, base_currency, launch_date := "", "", "", ""
-		sys_accept_language = ReadLanguageConfigurationFromFile()
+		sys_accept_language, _ = ReadLanguageConfigurationFromFile()
+		baselanguage_id := ReadBaselanguageConfigurationFromFile()
 		if strings.Count(sys_accept_language, ",") > 0 {
 			sys_acceptmultiplelanguage = true
 		}
@@ -988,7 +989,7 @@ func Servicepreparation() {
 				err := rows.Scan(&id, &code, &name)
 				if err == nil {
 					lang := id + ":" + name.String + " [" + code.String + "]"
-					if len(base_language) == 0 {
+					if id == baselanguage_id {
 						base_language = lang
 						base_language_code = code.String
 						switch code.String {
