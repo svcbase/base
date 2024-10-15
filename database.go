@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"encoding/gob"
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os"

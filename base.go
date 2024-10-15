@@ -465,7 +465,7 @@ func IsInServiceState() (flag bool) {
 	return
 }
 
-fund SetDBtype(ss string)(int){
+func SetDBtype(ss string) int {
 	DB_type = DBtype(ss)
 	return DB_type
 }
