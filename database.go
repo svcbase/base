@@ -24,6 +24,10 @@ func DB() (d_b *sql.DB) {
 	return
 }
 
+func SetDB(d_b *sql.DB) {
+	db = d_b
+}
+
 func DBclose() {
 	if db != nil {
 		db.Close()
@@ -1292,7 +1296,7 @@ func WriteEntityRecord(object_identifier string, instance_id int64, nml_fields,
 						}
 					}
 				}
-				fmt.Println("CCC")
+				//fmt.Println("CCC")
 			}
 		}
 	}
