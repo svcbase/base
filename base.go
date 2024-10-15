@@ -465,6 +465,11 @@ func IsInServiceState() (flag bool) {
 	return
 }
 
+fund SetDBtype(ss string)(int){
+	DB_type = DBtype(ss)
+	return DB_type
+}
+
 func DBtype(ss string) (dbtype int) {
 	switch ss {
 	case "SQLite":
