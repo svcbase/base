@@ -18,6 +18,25 @@ import (
 	"github.com/svcbase/ipblacklist"
 )
 
+var db *sql.DB
+var DB_database string
+
+const (
+	SQLite              = 1
+	MySQL               = 2
+	Oracle              = 3
+	DB_Connecting       = 1
+	DB_Initializing     = 2
+	DB_Loading          = 3
+	DB_Troubleshooting  = 4
+	DB_Undermaintenance = 5
+	DB_Running          = 6
+	DB_Stop             = 9
+)
+
+var DB_type int //sqlite,mysql,oracle,sqlserver
+var DB_cyclenode int
+
 func DB() (d_b *sql.DB) {
 	d_b = db
 	return
@@ -32,12 +51,32 @@ func DBclose() {
 		db.Close()
 		db = nil
 	}
-	//fmt.Println("\nDB closed.")
 }
 
 func DBname() (database string) {
 	database = DB_database
 	return
+}
+
+func SetDBtype(ss string) int {
+	DB_type = DBtype(ss)
+	return DB_type
+}
+
+func DBtype(ss string) (dbtype int) {
+	switch ss {
+	case "SQLite":
+		dbtype = SQLite
+	case "MySQL":
+		dbtype = MySQL
+	case "Oracle":
+		dbtype = Oracle
+	}
+	return
+}
+
+func UseMySQL() bool {
+	return (DB_type == MySQL)
 }
 
 func DoDBconnect(language_id, db_type, db_file, db_host, db_port, db_user, db_pswd, db_database string) (d_b *sql.DB, err error) {

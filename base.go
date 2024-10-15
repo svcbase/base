@@ -3,7 +3,6 @@ package base
 import (
 	"bufio"
 	"bytes"
-	"database/sql"
 	"encoding/base64"
 	"encoding/gob"
 	"encoding/json"
@@ -47,15 +46,9 @@ var mapEcho map[string]string
 var mapKV map[string]string
 var CacheDone chan bool
 
-var db *sql.DB
-var DB_database string
-
 const (
 	DailyDecodingQuota   = 100
 	FloatPrecisionFactor = 0.0000001
-	SQLite               = 1
-	MySQL                = 2
-	Oracle               = 3
 	//DD_bs64              = "aHR0cDovLzEwLjExMC4yLjk=" /* http://10.110.2.9 */
 	//DD_bs64 = "aHR0cDovL3d3dy5kZWVwZGF0YS50b3A=" /* http://www.deepdata.top */
 	//DP_bs64 = "aHR0cDovL3BheS5kZWVwZGF0YS5jbg==" /* http://pay.deepdata.cn */
@@ -64,20 +57,7 @@ const (
 	DD_bs64 = "aHR0cHM6Ly90b3AuZGVlcGRhdGEuY24=" /* https://top.deepdata.cn */
 )
 
-var DB_type int //sqlite,mysql,oracle,sqlserver
 var TodayDecodingNumber = 0
-
-const (
-	DB_Connecting       = 1
-	DB_Initializing     = 2
-	DB_Loading          = 3
-	DB_Troubleshooting  = 4
-	DB_Undermaintenance = 5
-	DB_Running          = 6
-	DB_Stop             = 9
-)
-
-var DB_cyclenode int
 
 const (
 	PAGE_ROWS           = 20
@@ -463,27 +443,6 @@ func RecordMAC() (mac string) {
 func IsInServiceState() (flag bool) {
 	flag = (Situation() == INSERVICE_STATE)
 	return
-}
-
-func SetDBtype(ss string) int {
-	DB_type = DBtype(ss)
-	return DB_type
-}
-
-func DBtype(ss string) (dbtype int) {
-	switch ss {
-	case "SQLite":
-		dbtype = SQLite
-	case "MySQL":
-		dbtype = MySQL
-	case "Oracle":
-		dbtype = Oracle
-	}
-	return
-}
-
-func UseMySQL() bool {
-	return (DB_type == MySQL)
 }
 
 func SituationMOK(w http.ResponseWriter, r *http.Request) (flag bool) {
