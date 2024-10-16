@@ -385,13 +385,11 @@ func dircopy(src, des string) (e error) {
 				}
 				dircopy(sdir, ddir)
 			} else {
-				if !strings.HasPrefix(fname, ".") {
-					srcfile := filepath.Join(src, fname)
-					desfile := filepath.Join(des, fname)
-					_, e = CopyFile(srcfile, desfile)
-					if e != nil {
-						e = errors.New("copy:" + srcfile + "," + desfile + " " + e.Error())
-					}
+				srcfile := filepath.Join(src, fname)
+				desfile := filepath.Join(des, fname)
+				_, e = CopyFile(srcfile, desfile)
+				if e != nil {
+					e = errors.New("copy:" + srcfile + "," + desfile + " " + e.Error())
 				}
 			}
 		}
