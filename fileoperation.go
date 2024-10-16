@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/fs"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -363,6 +364,51 @@ func ReadNSQL(filename string, ipos, needs int) (sqltxtt, commentt []string, nex
 		} else {
 			err = errors.New("SQL file not find, must be restart!")
 		}
+	}
+	return
+}
+
+func dircopy(src, des string) (e error) {
+	var dirr []fs.FileInfo
+	dirr, e = ioutil.ReadDir(src)
+	if e == nil {
+		for _, fi := range dirr {
+			fname := fi.Name()
+			if fi.IsDir() {
+				sdir := filepath.Join(src, fname)
+				ddir := filepath.Join(des, fname)
+				if !IsExists(ddir) {
+					e = os.Mkdir(ddir, 0755)
+					if e != nil {
+						e = errors.New("mkdir:" + ddir + " " + e.Error())
+					}
+				}
+				dircopy(sdir, ddir)
+			} else {
+				if !strings.HasPrefix(fname, ".") {
+					srcfile := filepath.Join(src, fname)
+					desfile := filepath.Join(des, fname)
+					_, e = CopyFile(srcfile, desfile)
+					if e != nil {
+						e = errors.New("copy:" + srcfile + "," + desfile + " " + e.Error())
+					}
+				}
+			}
+		}
+	}
+	return
+}
+
+func Xcopy(src, des string) (e error) {
+	if !IsExists(des) {
+		e = os.Mkdir(des, 0755)
+		if e != nil {
+			e = errors.New("mkdir:" + des + " " + e.Error())
+		}
+	}
+	if e == nil {
+		fmt.Println(src, des)
+		e = dircopy(src, des)
 	}
 	return
 }
