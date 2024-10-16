@@ -407,7 +407,6 @@ func Xcopy(src, des string) (e error) {
 		}
 	}
 	if e == nil {
-		fmt.Println(src, des)
 		e = dircopy(src, des)
 	}
 	return
