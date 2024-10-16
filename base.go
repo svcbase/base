@@ -588,43 +588,6 @@ func SendNotice(subject, body string) {
 	NoticeChannel <- SysNoticeT{subject, body} //send notice by frame.NoticeTask
 }
 
-func DBlaunch() (err error) {
-	filename := filepath.Join(dirRun, "configure", "database")
-	if !IsExists(filename) {
-		var file *os.File
-		file, err = os.OpenFile(filename, os.O_APPEND|os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644)
-		if err != nil {
-			ErrorLogger.Println("Failed to open the file", err.Error())
-		} else {
-			mysqlpath := filepath.Join(dirRun, "mysql")
-			info := make(map[string]map[string]string)
-			aDB := make(map[string]string)
-			aDB["online"] = "1"
-			dbtype := ""
-			if IsExists(mysqlpath) {
-				dbtype = "mysql"
-				aDB["db_host"] = "localhost"
-				aDB["db_port"] = "3306"
-				aDB["db_user"] = software
-				aDB["db_pswd"] = EncodeByKey(software+fmt.Sprintf("%d", TotalASCII(software)), KeyGen(TotalASCII(preferredMAC), 1111))
-				aDB["db_database"] = software
-			} else {
-				dbtype = "sqlite"
-				aDB["db_file"] = filepath.Join("[SYS]", software+".sqlite3")
-			}
-			aDB["db_type"] = dbtype
-			aDB["signature"] = makeConnectionSignature(aDB)
-			info["Native integration ["+dbtype+"]"] = aDB
-			encoder := gob.NewEncoder(file)
-			if err = encoder.Encode(info); err != nil {
-				ErrorLogger.Println("DB launch", err.Error())
-			}
-			file.Close()
-		}
-	}
-	return
-}
-
 func GetDBparameter(key, value string) (db_connection, db_type, db_file, db_host, db_port, db_user, db_pswd, db_database string) {
 	filename := filepath.Join(dirRun, "configure", "database")
 	if IsExists(filename) {

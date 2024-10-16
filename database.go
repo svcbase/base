@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/gob"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -481,6 +482,66 @@ func LiveDBconnection(signature string) (err error) {
 		}
 	} else {
 		err = errors.New("NO DB configure file")
+	}
+	return
+}
+
+func WriteMySQLDBMS(desPath, dbtitle, dbhost, dbport, dbuser, dbpswd, dbdatabase string) (err error) {
+	filename := filepath.Join(desPath, "configure", "database")
+	var file *os.File
+	file, err = os.OpenFile(filename, os.O_APPEND|os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644)
+	if err == nil {
+		info := make(map[string]map[string]string)
+		aDB := make(map[string]string)
+		aDB["online"] = "1"
+		aDB["db_host"] = dbhost
+		aDB["db_port"] = dbport
+		aDB["db_user"] = dbuser
+		aDB["db_pswd"] = EncodeByKey(dbpswd)
+		aDB["db_database"] = dbdatabase
+		aDB["db_type"] = "mysql"
+		aDB["signature"] = makeConnectionSignature(aDB)
+		info[dbtitle] = aDB
+		encoder := gob.NewEncoder(file)
+		err = encoder.Encode(info)
+		file.Close()
+	}
+	return
+}
+
+func DBlaunch() (err error) {
+	filename := filepath.Join(dirRun, "configure", "database")
+	if !IsExists(filename) {
+		var file *os.File
+		file, err = os.OpenFile(filename, os.O_APPEND|os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644)
+		if err != nil {
+			ErrorLogger.Println("Failed to open the file", err.Error())
+		} else {
+			mysqlpath := filepath.Join(dirRun, "mysql")
+			info := make(map[string]map[string]string)
+			aDB := make(map[string]string)
+			aDB["online"] = "1"
+			dbtype := ""
+			if IsExists(mysqlpath) {
+				dbtype = "mysql"
+				aDB["db_host"] = "localhost"
+				aDB["db_port"] = "3306"
+				aDB["db_user"] = software
+				aDB["db_pswd"] = EncodeByKey(software+fmt.Sprintf("%d", TotalASCII(software)), KeyGen(TotalASCII(preferredMAC), 1111))
+				aDB["db_database"] = software
+			} else {
+				dbtype = "sqlite"
+				aDB["db_file"] = filepath.Join("[SYS]", software+".sqlite3")
+			}
+			aDB["db_type"] = dbtype
+			aDB["signature"] = makeConnectionSignature(aDB)
+			info["Native integration ["+dbtype+"]"] = aDB
+			encoder := gob.NewEncoder(file)
+			if err = encoder.Encode(info); err != nil {
+				ErrorLogger.Println("DB launch", err.Error())
+			}
+			file.Close()
+		}
 	}
 	return
 }
