@@ -331,6 +331,7 @@ func SetPreferredMAC() (mac string) {
 		sort.Strings(macs)
 		mac = StrMD5(macs[0])
 	}
+	preferredMAC = mac
 	return
 }
 
