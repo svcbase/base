@@ -497,7 +497,7 @@ func WriteMySQLDBMS(desPath, dbtitle, dbhost, dbport, dbuser, dbpswd, dbdatabase
 		aDB["db_host"] = dbhost
 		aDB["db_port"] = dbport
 		aDB["db_user"] = dbuser
-		aDB["db_pswd"] = EncodeByKey(dbpswd)
+		aDB["db_pswd"] = EncodeByKey(dbpswd, KeyGen(TotalASCII(preferredMAC), 1111))
 		aDB["db_database"] = dbdatabase
 		aDB["db_type"] = "mysql"
 		aDB["signature"] = makeConnectionSignature(aDB)

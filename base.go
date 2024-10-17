@@ -324,6 +324,16 @@ func GetCookieStore() (cs *sessions.CookieStore) {
 	return
 }
 
+func SetPreferredMAC() (mac string) {
+	macs := GetMacAddrs()
+	nmacs := len(macs)
+	if nmacs > 0 {
+		sort.Strings(macs)
+		mac = StrMD5(macs[0])
+	}
+	return
+}
+
 func GetPreferredMAC() (mac string) {
 	mac = preferredMAC
 	return
