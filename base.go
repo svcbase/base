@@ -1332,7 +1332,7 @@ func Situation() (str string) {
 }
 
 func RightSituation(dir_run string) (err error) {
-	filename := filepath.Join(dir_run, "situation")
+	filename := filepath.Join(dirRun, "situation")
 	if IsExists(filename) {
 		b, e := ioutil.ReadFile(filename)
 		if e != nil {
@@ -1344,11 +1344,11 @@ func RightSituation(dir_run string) (err error) {
 			}
 		}
 	} else {
-		filename = filepath.Join(dir_run, "administrator")
+		filename = filepath.Join(dirRun, "administrator")
 		if IsExists(filename) {
 			os.Remove(filename)
 		}
-		err = WriteSituation(dir_run, INITIAL_STATE)
+		err = WriteSituation(dirRun, INITIAL_STATE)
 	}
 	return
 }
@@ -1361,7 +1361,7 @@ func GetBack2DBMS_state(dir_run string) (err error) {
 func WriteSituation(dir_run, ss string) (err error) {
 	filename := filepath.Join(dir_run, "situation")
 	situation = ss
-	e := ioutil.WriteFile(filename, []byte(situation), 0777)
+	e := ioutil.WriteFile(filename, []byte(situation), 0666)
 	if e != nil {
 		err = errors.New("write situation file: " + e.Error())
 	}
