@@ -422,6 +422,7 @@ func RecordMAC() (mac string) {
 	if nmacs > 0 {
 		sort.Strings(macs)
 	}
+	//fmt.Println("MACS:", strings.Join(macs, ","))
 	macfile := filepath.Join(dirRun, "identifier")
 	if !IsExists(macfile) {
 		if nmacs > 0 {
@@ -1459,15 +1460,17 @@ func GetMacAddrs() (macAddrs []string) {
 	netInterfaces, err := net.Interfaces()
 	if err == nil {
 		for _, netInterface := range netInterfaces {
-			macAddr := netInterface.HardwareAddr.String()
-			if len(macAddr) > 0 {
-				addrs, e := netInterface.Addrs()
-				if e == nil {
-					for _, addr := range addrs {
-						ipNet, isValidIpNet := addr.(*net.IPNet)
-						if isValidIpNet && !ipNet.IP.IsLoopback() && ipNet.IP.To4() != nil {
-							if !strings.HasPrefix(ipNet.String(), "169.254") {
-								macAddrs = append(macAddrs, macAddr)
+			if netInterface.Flags&net.FlagUp != 0 && netInterface.Flags&net.FlagLoopback == 0 {
+				macAddr := netInterface.HardwareAddr.String()
+				if len(macAddr) > 0 {
+					addrs, e := netInterface.Addrs()
+					if e == nil {
+						for _, addr := range addrs {
+							ipNet, isValidIpNet := addr.(*net.IPNet)
+							if isValidIpNet && !ipNet.IP.IsLoopback() && ipNet.IP.To4() != nil {
+								if !strings.HasPrefix(ipNet.String(), "169.254") {
+									macAddrs = append(macAddrs, macAddr)
+								}
 							}
 						}
 					}
