@@ -12,6 +12,8 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/tidwall/gjson"
 )
 
 func InitSysLang() {
@@ -325,7 +327,7 @@ func GetLanguageVersionText(data, base_language, language, version_separator str
 	baseversion := data
 	ss := strings.Split(data, version_separator)
 	for _, v := range ss {
-		vv := strings.Split(v, ":")
+		vv := strings.SplitN(v, ":", 2)
 		if len(vv) == 2 {
 			if vv[0] == base_language {
 				baseversion = vv[1]
@@ -400,6 +402,53 @@ func ReadBaselanguageConfigurationFromFile() (base_language string) {
 	}
 	if len(base_language) == 0 {
 		base_language = "2"
+	}
+	return
+}
+
+func ReadFileVariables(filename, language string) (mapVar map[string]string) {
+	mapVar = make(map[string]string)
+	if IsExists(filename) {
+		b, err := ioutil.ReadFile(filename)
+		if err == nil && len(b) > 0 {
+			definition := gjson.ParseBytes(b)
+			if definition.Exists() {
+				lang := ""
+				languages := []string{}
+				definition.ForEach(func(k, v gjson.Result) bool {
+					languages = append(languages, k.String())
+					return true
+				})
+				exists, _ := In_array(language, languages)
+				if !exists {
+					ss := strings.Split(language, "_") //zh_TW -> zh
+					if len(ss) == 2 {
+						exists, _ = In_array(ss[0], languages)
+						if exists {
+							lang = ss[0]
+						}
+					}
+					if len(lang) == 0 && len(languages) > 0 {
+						lang = languages[0]
+					}
+				} else {
+					lang = language
+				}
+				if len(lang) > 0 {
+					o := definition.Get(lang)
+					if o.Exists() {
+						o.ForEach(func(k, v gjson.Result) bool {
+							if v.IsObject() {
+							} else if v.IsArray() {
+							} else {
+								mapVar[k.String()] = v.String()
+							}
+							return true
+						})
+					}
+				}
+			}
+		}
 	}
 	return
 }

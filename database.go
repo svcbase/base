@@ -128,6 +128,7 @@ func DoDBconnect(language_id, db_type, db_file, db_host, db_port, db_user, db_ps
 func DBconnect() (d_b *sql.DB, err error) {
 	d_b = nil
 	_, db_type, db_file, db_host, db_port, db_user, db_pswd, db_database := GetDBparameter("online", "1")
+	//fmt.Println(db_type, db_file, db_host, db_port, db_user, db_pswd, db_database)
 	db, err = DoDBconnect(BaseLanguage_id(), db_type, db_file, db_host, db_port, db_user, db_pswd, db_database)
 	if err != nil {
 		ErrorLogger.Println("DB connect", err.Error())
@@ -1642,6 +1643,46 @@ func InstancePropertyRetrieve(tablename, property string, instance_id int64) (th
 	return
 }
 
+func Instance2PropertyRetrieve(tablename, property1, property2 string, instance_id int64) (thevalue1, thevalue2 string) {
+	if db != nil {
+		asql := "select " + property1 + "," + property2 + " from " + tablename + " where id=?"
+		row := db.QueryRow(asql, instance_id)
+		if row != nil {
+			var v1, v2 sql.NullString
+			e := row.Scan(&v1, &v2)
+			if e != nil && !NoRowsError(e) {
+				ErrorLogger.Println(asql, e.Error())
+			} else {
+				thevalue1 = v1.String
+				thevalue2 = v2.String
+			}
+		}
+	}
+	return
+}
+
+// properties: abc,def,ghi
+func InstanceMultiPropertiesRetrieve(tablename, properties string, instance_id int64) (values []string) {
+	if db != nil {
+		asql := "select " + properties + " from " + tablename + " where id=?"
+		row := db.QueryRow(asql, instance_id)
+		if row != nil {
+			m := strings.Count(properties, ",") + 1
+			vals := make([]sql.NullString, m)
+			cans := make([]interface{}, m)
+			for i := 0; i < m; i++ {
+				cans[i] = &vals[i]
+			}
+			if row.Scan(cans...) == nil {
+				for i := 0; i < m; i++ {
+					values = append(values, vals[i].String)
+				}
+			}
+		}
+	}
+	return
+}
+
 func InstancePropertyUpdate(tablename, extra_property, extra_value string, instance_id int64) (e error) {
 	if instance_id > 0 {
 		if db != nil {
@@ -1686,16 +1727,20 @@ func InstanceIDs(tablename, property_name, property_value string) (iids []int64)
 	return
 }
 
-func InstanceIDsEx(tablename, property_name, property_value, extra_property string) (iids []int64, vals []string) {
+func InstanceIDsEx(tablename, property_name, property_value, extra_property string, limit int) (iids []int64, vals []string) {
 	if db != nil && len(property_value) > 0 && len(extra_property) > 0 {
 		var e error
 		var rows *sql.Rows
+		limit_sql := ""
+		if limit > 0 {
+			limit_sql = " limit " + strconv.Itoa(limit)
+		}
 		asql := "select id," + extra_property + " from " + tablename + " where " + property_name + "="
 		if IsTime19(property_value) {
-			asql += SQL_dateformat19(property_value)
+			asql += SQL_dateformat19(property_value) + limit_sql
 			rows, e = db.Query(asql)
 		} else {
-			asql += "?"
+			asql += "?" + limit_sql
 			rows, e = db.Query(asql, property_value)
 		}
 		if e == nil {
@@ -1778,8 +1823,37 @@ func Tablecount(tablename string) (count int, err error) {
 	return
 }
 
+func Tablecountex(tablename, where string) (count int, err error) {
+	if db != nil {
+		asql := "select count(1) from `" + tablename + "`"
+		if len(where) > 0 {
+			asql += " where " + where
+		}
+		row := db.QueryRow(asql)
+		if row != nil {
+			err = row.Scan(&count)
+		}
+	} else {
+		err = errors.New("DB not connected!")
+	}
+	return
+}
 func InstanceCount(asql string) (count int64) { //asql: select count(1) from user
 	if db != nil && len(asql) > 0 {
+		row := db.QueryRow(asql)
+		if row != nil {
+			e := row.Scan(&count)
+			if e != nil && !NoRowsError(e) {
+				ErrorLogger.Println(asql, e.Error())
+			}
+		}
+	}
+	return
+}
+
+func InstanceCountEx(tablename, property_name, property_value string) (count int64) {
+	if db != nil && len(property_name) > 0 && len(property_value) > 0 {
+		asql := `select count(1) from ` + tablename + ` where ` + property_name + `="` + property_value + `"`
 		row := db.QueryRow(asql)
 		if row != nil {
 			e := row.Scan(&count)

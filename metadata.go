@@ -127,32 +127,37 @@ func (md *Metadata) WriteSignature2DeepData() (err error) {
 	return
 }
 
-func (md *Metadata) Write2DB() (err error) {
-	db := DB()
-	if db != nil {
-		asql := "delete from metadata"
-		_, err = db.Exec(asql)
-		if err == nil {
-			filenames := []string{}
-			for _, fname := range md.Filenames { //remain meta.data order
-				filenames = append(filenames, fname)
-			}
-			sort.Strings(filenames)
-			for _, fname := range filenames {
-				if info, ok := md.mapInfo[fname]; ok {
-					//filename := filepath.Join(dirRes, "res", "meta.data")
-					//tm := Filemodtime(filename)
-					//use for datetime field
-					extension := strings.Trim(filepath.Ext(fname), ".")
-					asql := "insert into metadata(filename,fileextension,filecomment,signature,time_created,time_updated) "
-					asql += "values(?,?,?,?," + SQL_now() + "," + SQL_now() + ")"
-					_, err = db.Exec(asql, fname, extension, info.Comment, info.Signature)
-					if err != nil {
-						break
-					}
+func (md *Metadata) Write2Database(db *sql.DB) (err error) {
+	asql := "delete from metadata"
+	_, err = db.Exec(asql)
+	if err == nil {
+		filenames := []string{}
+		for _, fname := range md.Filenames { //remain meta.data order
+			filenames = append(filenames, fname)
+		}
+		sort.Strings(filenames)
+		for _, fname := range filenames {
+			if info, ok := md.mapInfo[fname]; ok {
+				//filename := filepath.Join(dirRes, "res", "meta.data")
+				//tm := Filemodtime(filename)
+				//use for datetime field
+				extension := strings.Trim(filepath.Ext(fname), ".")
+				asql := "insert into metadata(filename,fileextension,filecomment,signature,time_created,time_updated) "
+				asql += "values(?,?,?,?," + SQL_now() + "," + SQL_now() + ")"
+				_, err = db.Exec(asql, fname, extension, info.Comment, info.Signature)
+				if err != nil {
+					break
 				}
 			}
 		}
+	}
+	return
+}
+
+func (md *Metadata) Write2DB() (err error) {
+	db := DB()
+	if db != nil {
+		err = md.Write2Database(db)
 	} else {
 		err = errors.New("DB not ready!")
 	}

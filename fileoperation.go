@@ -164,6 +164,42 @@ func Clean_dir(path string, beforehours int) (n int) {
 	return
 }
 
+func CleanDirBySuffix(path, suffix string) (n int) {
+	n = 0
+	if IsExists(path) {
+		dir, err := ioutil.ReadDir(path)
+		if err == nil {
+			for _, fi := range dir {
+				if !fi.IsDir() {
+					fname := fi.Name()
+					if strings.HasSuffix(fname, suffix) {
+						os.Remove(filepath.Join(path, fname))
+						n++
+					}
+				}
+			}
+		}
+	}
+	return
+}
+
+func ReadDirBySuffix(path, suffix string) (files []string) {
+	if IsExists(path) {
+		dir, err := ioutil.ReadDir(path)
+		if err == nil {
+			for _, fi := range dir {
+				if !fi.IsDir() {
+					fname := fi.Name()
+					if strings.HasSuffix(fname, suffix) {
+						files = append(files, fname)
+					}
+				}
+			}
+		}
+	}
+	return
+}
+
 func Upload2AbsolutePath(upath string) (apath string) {
 	if strings.HasPrefix(upath, "/u?n=") {
 		b := []byte(upath)
@@ -209,28 +245,37 @@ func HasReadWritePermission(spath string) (flag bool) {
 
 func Unzip(zipfile, dirOut string) (err error) {
 	if filepath.Ext(zipfile) == ".zip" {
+		MakeDir(dirOut)
 		r, e := zip.OpenReader(zipfile)
 		if e == nil {
 			for _, innerFile := range r.File {
 				fname := filepath.Join(dirOut, innerFile.Name)
-				if err = os.MkdirAll(filepath.Dir(fname), 0755); err != nil {
-					break
+				if innerFile.FileInfo().IsDir() {
+					err = os.Mkdir(fname, 0755)
 				} else {
-					w, e := os.Create(fname)
-					if e != nil {
-						err = errors.New("create: " + fname + " " + e.Error())
+					if err = os.MkdirAll(filepath.Dir(fname), 0755); err != nil {
+						fmt.Println(fname, "*", err.Error())
 						break
 					} else {
-						defer w.Close()
-						rc, e := innerFile.Open()
+						tm := innerFile.FileInfo().ModTime()
+						w, e := os.Create(fname)
 						if e != nil {
-							err = errors.New("inner file open: " + innerFile.Name + " " + e.Error())
+							err = errors.New("create: " + fname + " " + e.Error())
 							break
 						} else {
-							defer rc.Close()
-							_, err = io.Copy(w, rc)
-							if err != nil {
+							defer w.Close()
+							rc, e := innerFile.Open()
+							if e != nil {
+								err = errors.New("inner file open: " + innerFile.Name + " " + e.Error())
 								break
+							} else {
+								defer rc.Close()
+								_, err = io.Copy(w, rc)
+								if err != nil {
+									break
+								} else {
+									os.Chtimes(fname, tm, tm)
+								}
 							}
 						}
 					}

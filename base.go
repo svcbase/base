@@ -36,6 +36,8 @@ import (
 
 var software /*GetDir*/, preferredMAC, software_title, HTTP_port string
 var issuer, issueremail, issuerdomain, manageremail string
+var softwaresuperior_id int
+var softwaresuperior_language, softwaresuperior_email string
 var SM2_privatekey string
 var membership, organCode, organName string
 var membershipExpiration bool
@@ -83,6 +85,7 @@ const (
 
 const (
 	Usertype_customer      = 1
+	Usertype_partner       = 2
 	Usertype_staffer       = 8
 	Usertype_director      = 9
 	Usertype_master        = 99
@@ -367,8 +370,20 @@ func GetLogDir() (ss string) {
 	return
 }
 
+func Superior() (superior_id int, superior_language, superior_email string) {
+	superior_id = softwaresuperior_id
+	superior_language = softwaresuperior_language
+	superior_email = softwaresuperior_email
+	return
+}
+
 func GetUploadsDir() (ss string) {
 	ss = filepath.Join(dirRun, "uploads")
+	return
+}
+
+func GetTempDir() (ss string) {
+	ss = filepath.Join(dirRun, "temp")
 	return
 }
 
@@ -1317,6 +1332,29 @@ func GetDir(soft_ware string) (exeDir, exeFile, runDir, resDir string) {
 	} else {
 		mapEcho = make(map[string]string)
 	}
+	filename = filepath.Join(dirRes, "res", "partner.chip")
+	if IsExists(filename) {
+		src, e := ioutil.ReadFile(filename)
+		if e == nil {
+			dst := make([]byte, len(src))
+			var n int
+			n, e = base64.StdEncoding.Decode(dst, src)
+			if e == nil {
+				type chipT struct {
+					User     int
+					Language string
+					Email    string
+				}
+				var chip chipT
+				e = json.Unmarshal(dst[0:n], &chip)
+				if e == nil {
+					softwaresuperior_id = chip.User
+					softwaresuperior_language = chip.Language
+					softwaresuperior_email = chip.Email
+				}
+			}
+		}
+	}
 	return
 }
 
@@ -1947,9 +1985,9 @@ func SiteAddress(client_ipaddress string) (site_address string) {
 			site_address = ipaddr.LocalIP()
 		}
 	}
-	if len(HTTP_port) > 0 && HTTP_port != "80" {
+	/*if len(HTTP_port) > 0 && HTTP_port != "80" {
 		site_address += ":" + HTTP_port
-	}
+	}*/
 	return
 }
 
