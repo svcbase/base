@@ -105,8 +105,6 @@ var mapLangFlag map[string]string
 var mapLangCurr map[string]string
 var mapWidget map[string]dependencyT
 
-// var mapDateFormat map[string]string
-// var mapTimeFormat map[string]string
 var sys_acceptmultiplelanguage bool
 var sys_accept_language string
 var Meta_data Metadata
@@ -123,8 +121,6 @@ func init() {
 	mapLangFlag = make(map[string]string)
 	mapLangCurr = make(map[string]string)
 	mapWidget = make(map[string]dependencyT)
-	//mapDateFormat = make(map[string]string)
-	//mapTimeFormat = make(map[string]string)
 	mapKV = make(map[string]string)
 	sys_acceptmultiplelanguage = false
 	CacheDone = make(chan bool)
@@ -204,15 +200,6 @@ func GetV(key string) (val string) {
 	val = mapKV[key]
 	return
 }
-
-/*func SetSM2privatekey(privatekey string) {
-	SM2_privatekey = privatekey
-}
-
-func SM2privatekey() (privatekey string) {
-	privatekey = SM2_privatekey
-	return
-}*/
 
 func Setorgancode(code string) {
 	organCode = code
@@ -415,10 +402,11 @@ func RecordMAC() (mac string) {
 	if nmacs > 0 {
 		sort.Strings(macs)
 	}
+
 	macsfile := filepath.Join(dirRun, "macs")
 	file, err := os.OpenFile(macsfile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
 	if err != nil {
-		fmt.Printf("Open file failure: ", macsfile)
+		fmt.Printf("open file failure: ", macsfile)
 		return
 	} else {
 		file.WriteString(time.Now().Format("2006-01-02 15:04:05") + "\n")
@@ -426,7 +414,6 @@ func RecordMAC() (mac string) {
 	}
 	defer file.Close()
 
-	//fmt.Println("MACS:", strings.Join(macs, ","))
 	macfile := filepath.Join(dirRun, "identifier")
 	if !IsExists(macfile) {
 		if nmacs > 0 {
@@ -675,55 +662,13 @@ func Is_DB_in_Running() bool {
 	return (DB_cyclenode == DB_Running)
 }
 
-/*
-	func ReadHint() {
-		langpath := filepath.Join(dirRes, "res")
-		dir, err := ioutil.ReadDir(langpath)
-		if err == nil {
-			for _, fd := range dir {
-				fname := fd.Name()
-				if !fd.IsDir() && strings.HasSuffix(fname, ".lang") {
-					lang := ""
-					ss := strings.Split(fname, ".")
-					if len(ss) == 2 {
-						lang = ss[0]
-					}
-					fname = filepath.Join(langpath, fname)
-					fi, err := os.Open(fname)
-					if err == nil {
-						defer fi.Close()
-						eof := false
-						r := bufio.NewReader(fi)
-						for {
-							s, e := r.ReadString('\n')
-							if e == io.EOF {
-								eof = true
-							}
-							if len(s) > 0 {
-								ss := strings.SplitN(strings.TrimRight(s, "\r\n"), "=", 2)
-								if len(ss) == 2 {
-									k := strings.TrimRight(ss[0], " \t")
-									v := strings.TrimLeft(ss[1], " \t")
-									mapHint[lang+k] = v
-								}
-							}
-							if eof {
-								break
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-*/
 func SigninRedirect(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/signin?r="+url.QueryEscape(r.RequestURI), http.StatusFound)
 }
 
 func LoginRedirect(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/login?r="+url.QueryEscape(r.RequestURI), http.StatusFound)
-	//http: superfluous(多余的) response.WriteHeader call from base.LoginRedirect
+	//http: superfluous response.WriteHeader call from base.LoginRedirect
 }
 
 func ReadDualLogin(r *http.Request, cs *sessions.CookieStore) (signed bool, user_id, username string, user_type int) {
@@ -1053,7 +998,6 @@ func IsWeakpassword(password string) bool {
 	return flag
 }
 
-// ---
 func CharType(ch rune) (ty int) { //1: 汉 2: digit 3: letter 4: space 5: return 6: newline 0: other
 	ty = 0
 	if len(string(ch)) > 1 {
@@ -1090,12 +1034,6 @@ func StrNextWord(s []rune, i, n int) (j int, curword string) {
 			}
 		}
 		curword = string(s[i:j])
-		//fmt.Println( []byte(curword) )
-		//fmt.Printf( " %x\r\n",ch )
-		//if ch == 0x3000 || ch == 0x2003 {	//IdeographicSpace EmSpace
-		//	curword = "　"
-		//fmt.Println( "***" )
-		//}
 	}
 	return
 }
@@ -1138,9 +1076,6 @@ func WordSlice(str string) (words []string) {
 					c := []rune(wd)
 					flag = IsAtomChar(c[0])
 				}
-				/*if flag {
-					flag = !IsNumber(wd)
-				}*/
 				if flag {
 					exists, _ := In_array(wd, words)
 					if !exists {
@@ -1282,7 +1217,7 @@ func GetDir(soft_ware string) (exeDir, exeFile, runDir, resDir string) {
 	file, _ := exec.LookPath(os.Args[0]) //execute file name
 	path, _ := filepath.Abs(file)
 	exeDir, exeFile = filepath.Split(path) //execute file path and short name
-	//exeDir, _ = os.Getwd()//systemctl服务不安全
+	//exeDir, _ = os.Getwd()//systemctl not safe.
 	if strings.Index(exeDir, "go-build") > 0 {
 		fmt.Println("not support go-build mode!")
 	} else {
@@ -1295,10 +1230,7 @@ func GetDir(soft_ware string) (exeDir, exeFile, runDir, resDir string) {
 			resDir = exeDir
 		}
 	}
-	//fmt.Println(os.Getenv("LANG"))
 	fmt.Println("start "+software+" dir:", exeDir, "OS:", runtime.GOOS) //runtime.GOOS: linux,darwin,...
-	//	fmt.Println("run dir:", runDir)
-	//	fmt.Println("res dir:", resDir)
 	dirRun = runDir
 	dirRes = resDir
 	filename := filepath.Join(dirRes, "res", "start.echo")
@@ -1603,7 +1535,7 @@ func FulltextQueryExpression(q string) (expression string) {
 		expression += "+"
 		if len(w) == len([]rune(w)) {
 			expression += w
-			if w != "use" && w != "non" { //https://sczcx.iteye.com/blog/2145722 停用词
+			if w != "use" && w != "non" {
 				expression += "*"
 			}
 		} else {
@@ -1780,10 +1712,6 @@ func GetWidgetDependency(widget string) (dependencies []string) {
 		for i := 0; i < n; i++ {
 			dependencies = append(dependencies, `<link rel="stylesheet" href="`+w.CSS[i]+`">`)
 		}
-		//rf := ""
-		//if GetConfigurationSimple("SITE_ADDRESS") == "localhost" {
-		//	rf = "?" + strconv.FormatInt(time.Now().Unix(), 10)
-		//}
 		n = len(w.JS)
 		for i := 0; i < n; i++ {
 			dependencies = append(dependencies, `<script type="text/javascript" src="`+w.JS[i]+ /*rf+*/ `"></script>`)
@@ -1950,9 +1878,6 @@ func SiteAddress(client_ipaddress string) (site_address string) {
 			site_address = ipaddr.LocalIP()
 		}
 	}
-	/*if len(HTTP_port) > 0 && HTTP_port != "80" {
-		site_address += ":" + HTTP_port
-	}*/
 	return
 }
 
@@ -1974,7 +1899,7 @@ func DeepdataKeys() (keys []int) {
 	return
 }
 
-// filename format: project_a1bae84094d454870b0012facd6e822f.ddat
+// filename format: identifier_a1bae84094d454870b0012facd6e822f.ddat
 func CheckFileSignature(filename string) (e error) {
 	if IsExists(filename) {
 		i := strings.LastIndex(filename, "_")
