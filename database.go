@@ -306,67 +306,6 @@ func MatchSignature() (flag bool, err error) {
 	return
 }
 
-/*func GetDeepDataSignature() (signature string, err error) {
-	if db != nil {
-		otables := []string{}
-		var rows *sql.Rows
-		var asql string
-		switch DB_type {
-		case SQLite:
-			asql = "SELECT tbl_name FROM sqlite_master WHERE type='table' and tbl_name not like 'sqlite_%'"
-		case MySQL:
-			asql = "SELECT table_name FROM information_schema.tables WHERE TABLE_SCHEMA='" + DB_database + "'"
-		}
-		rows, err = db.Query(asql)
-		if err == nil {
-			var table_name sql.NullString
-			for rows.Next() {
-				err = rows.Scan(&table_name)
-				if err == nil {
-					otables = append(otables, table_name.String)
-				} else {
-					ErrorLogger.Println(err.Error())
-					break
-				}
-			}
-			rows.Close()
-		}
-		idid := []string{}
-		//identifier->code
-		asql = "select code from entity where creator='deepdata' order by code"
-		rows, err = db.Query(asql)
-		if err == nil {
-			var identifier sql.NullString
-			for rows.Next() {
-				err = rows.Scan(&identifier)
-				if err == nil {
-					id := identifier.String
-					exists, _ := In_array(id, otables)
-					if exists {
-						idid = append(idid, id)
-					} else {
-						err = errors.New("table " + id + " not find!")
-					}
-				} else {
-					ErrorLogger.Println(err.Error())
-					break
-				}
-			}
-			rows.Close()
-		}
-		if err == nil {
-			if len(idid) == 0 {
-				err = errors.New("zero entity table created!")
-			} else {
-				signature = StrMD5(strings.Join(idid, "="))
-			}
-		}
-	} else {
-		err = errors.New("database not connected!")
-	}
-	return
-}*/
-
 func TableExists(name string) (flag bool) {
 	flag = false
 	if db != nil && len(name) > 0 {
@@ -723,52 +662,6 @@ func ReadCurrency() (err error) {
 	}
 	return
 }
-
-/*func ReadDateFormat() (err error) {
-	if db != nil {
-		asql := "select name,parameter from dateformat"
-		var rows *sql.Rows
-		rows, err = db.Query(asql)
-		if err == nil {
-			for rows.Next() {
-				var name, parameter sql.NullString
-				err = rows.Scan(&name, &parameter)
-				if err == nil {
-					mapDateFormat[name.String] = parameter.String
-				} else {
-					ErrorLogger.Println(asql, "scan", err.Error())
-				}
-			}
-			rows.Close()
-		} else {
-			ErrorLogger.Println(asql, err.Error())
-		}
-	}
-	return
-}
-
-func ReadTimeFormat() (err error) {
-	if db != nil {
-		asql := "select name,parameter from timeformat"
-		var rows *sql.Rows
-		rows, err = db.Query(asql)
-		if err == nil {
-			for rows.Next() {
-				var name, parameter sql.NullString
-				err = rows.Scan(&name, &parameter)
-				if err == nil {
-					mapTimeFormat[name.String] = parameter.String
-				} else {
-					ErrorLogger.Println(asql, "scan", err.Error())
-				}
-			}
-			rows.Close()
-		} else {
-			ErrorLogger.Println(asql, err.Error())
-		}
-	}
-	return
-}*/
 
 func ReadConfiguration() (err error) {
 	if db != nil {
