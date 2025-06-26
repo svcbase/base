@@ -15,6 +15,10 @@ type JsonpickupT struct {
 	Clientlanguage_id string
 	User_id           string
 }
+type MakeLicenseT struct {
+	User_id int64
+	Sale_id int64
+}
 
 var NoticeChannel chan SysNoticeT
 var DataexportCommandChannel chan string
@@ -28,6 +32,7 @@ var ImportChannel chan int
 var UpgradeChannel chan int
 var APIretryChannel chan int
 var BatchemailChannel chan int
+var MakeLicenseChannel chan MakeLicenseT
 var PickupChannel chan JsonpickupT
 var TxtImgChannel chan string
 var TotalChannel chan int
@@ -39,8 +44,8 @@ var CextraChannel chan int
 var DextraChannel chan int
 var EextraChannel chan int
 var FextraChannel chan int
+var ControlCenterAccountChannel chan string
 
-// var ImportChannel chan JsonimportT
 var LabelingChannel chan int /*starting batch labeling tasks at lowest traffic point.*/
 var SafegovcnChannel chan int
 
@@ -50,6 +55,7 @@ func init_channel() {
 	HeartbeatChannel = make(chan int, 2)
 	ExitChannel = make(chan os.Signal, 1)
 	ImportChannel = make(chan int, 1)
+	MakeLicenseChannel = make(chan MakeLicenseT, 1)
 	PickupChannel = make(chan JsonpickupT, 2)
 	TxtImgChannel = make(chan string, 1)
 	LabelingChannel = make(chan int, 1)
@@ -69,4 +75,5 @@ func init_channel() {
 	DextraChannel = make(chan int, 1)
 	EextraChannel = make(chan int, 1)
 	FextraChannel = make(chan int, 1)
+	ControlCenterAccountChannel = make(chan string, 1)
 }
