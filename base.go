@@ -34,11 +34,12 @@ import (
 	"github.com/natefinch/lumberjack"
 )
 
-var software /*GetDir*/, preferredMAC, software_title, HTTP_port string
+var software /*GetDir*/, version, preferredMAC, software_title, HTTP_port string
 var issuer, issueremail, issuerdomain, manageremail string
 var softwaresuperior_id int
 var softwaresuperior_language, softwaresuperior_email string
-var SM2_privatekey string
+
+// var SM2_privatekey string
 var membership, organCode, organName string
 var membershipExpiration bool
 var cookieStore *sessions.CookieStore
@@ -53,12 +54,6 @@ var DDSM2_privateKeyPem string
 const (
 	DailyDecodingQuota   = 100
 	FloatPrecisionFactor = 0.0000001
-	//DD_bs64              = "aHR0cDovLzEwLjExMC4yLjk=" /* http://10.110.2.9 */
-	//DD_bs64 = "aHR0cDovL3d3dy5kZWVwZGF0YS50b3A=" /* http://www.deepdata.top */
-	//DP_bs64 = "aHR0cDovL3BheS5kZWVwZGF0YS5jbg==" /* http://pay.deepdata.cn */
-	DP_bs64 = "aHR0cHM6Ly9wYXkuZGVlcGRhdGEuY24=" /* https://pay.deepdata.cn */
-	//DD_bs64 = "aHR0cDovL3RvcC5kZWVwZGF0YS5jbg==" /* http://top.deepdata.cn */
-	DD_bs64 = "aHR0cHM6Ly90b3AuZGVlcGRhdGEuY24=" /* https://top.deepdata.cn */
 )
 
 var TodayDecodingNumber = 0
@@ -102,7 +97,6 @@ type dependencyT struct {
 var aLogger, eLogger, vLogger lumberjack.Logger
 var AccessLogger, VisitLogger, ErrorLogger *log.Logger
 var dirRun, dirRes, dirLog string
-var version string
 
 var mapUsertype map[int]string   //1:customer 8:staffer
 var mapLang map[string]string    //en:1	zh:2
@@ -211,13 +205,6 @@ func GetV(key string) (val string) {
 	return
 }
 
-func GetV_1st() (val string) {
-	for _, val = range mapKV {
-		break
-	}
-	return
-}
-
 /*func SetSM2privatekey(privatekey string) {
 	SM2_privatekey = privatekey
 }
@@ -273,22 +260,6 @@ func Simfangttf() (fn string) {
 
 func Simheittf() (fn string) {
 	fn = filepath.Join(dirRes, "res", "simhei.ttf")
-	return
-}
-
-func DeeppayUrl() (surl string) {
-	b, e := base64.StdEncoding.DecodeString(DP_bs64)
-	if e == nil {
-		surl = string(b)
-	}
-	return
-}
-
-func DeepdataUrl() (surl string) {
-	b, e := base64.StdEncoding.DecodeString(DD_bs64)
-	if e == nil {
-		surl = string(b)
-	}
 	return
 }
 
