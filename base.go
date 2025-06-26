@@ -415,11 +415,10 @@ func RecordMAC() (mac string) {
 	if nmacs > 0 {
 		sort.Strings(macs)
 	}
-	//2025-05-10
 	macsfile := filepath.Join(dirRun, "macs")
 	file, err := os.OpenFile(macsfile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
 	if err != nil {
-		fmt.Printf("打开文件失败: ", macsfile)
+		fmt.Printf("Open file failure: ", macsfile)
 		return
 	} else {
 		file.WriteString(time.Now().Format("2006-01-02 15:04:05") + "\n")
@@ -1126,28 +1125,6 @@ func FirstWords(str string, maxBytes int) (gist string) {
 	return
 }
 
-/*func FirstWords(str string, maxBytes int) (gist string) {
-	m := maxBytes
-	s := []rune(str)
-	i, n := 0, len(s)
-	for i < n {
-		j, wd := StrNextWord(s, i, n)
-		if j > 0 {
-			if m > 0 {
-				wd = strings.Trim(wd, "\r\n")
-				if len(wd) > 0 {
-					m -= len(wd)
-					gist += wd
-				}
-			}
-			i = j
-		} else {
-			break
-		}
-	}
-	return
-}*/
-
 func WordSlice(str string) (words []string) {
 	s := []rune(str)
 	i, n := 0, len(s)
@@ -1739,16 +1716,6 @@ func ReadAdminConfiguration() {
 		}
 	}
 }
-
-/*func RoadmapIDsql(roadmap []string) (idconcat string) {
-	idid := []string{}
-	n := len(roadmap)
-	for i := 0; i < n-1; i++ {
-		idid = append(idid, strings.Join(roadmap[0:i+1], "_")+"_id")
-	}
-	idconcat = SQL_concat_column("a", strings.Join(idid, ","))
-	return
-}*/
 
 // productcategory,property
 func CombineRoadmap(identifier, subentities string) (roadmap []string) {
